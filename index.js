@@ -30,11 +30,17 @@ var checkAnchor = function (href) {
   }
   var requestUrl = url.resolve(target, href)
   request(requestUrl, function (error, res) {
-    if (!error && res.statusCode === 200) {
-      console.log(chalk.green('OK') + ': ' + requestUrl);
+    if (error) {
+      console.log(chalk.red('NG') + ': ' + requestUrl);
+      console.log(chalk.gray(error.message));
       return;
     }
-    console.log(chalk.red('NG') + ': ' + requestUrl);
+    if (res.statusCode !== 200) {
+      console.log(chalk.red('NG') + ': ' + requestUrl);
+      console.log(chalk.gray('Status code: ' + res.statusCode));
+      return;
+    }
+    console.log(chalk.green('OK') + ': ' + requestUrl);
   });
 };
 
