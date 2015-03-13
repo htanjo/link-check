@@ -6,6 +6,7 @@ var cheerio = require('cheerio');
 var chalk = require('chalk');
 
 var target = '';
+var limit = 20;
 
 var linkCheck = function (targetUrl) {
   target = targetUrl;
@@ -13,10 +14,15 @@ var linkCheck = function (targetUrl) {
   request(target, function (error, res, html) {
     if (error || !html) {
       console.log(chalk.red('Invalid URL!'));
+      console.log(chalk.gray(error.message));
       return;
     }
     var $ = cheerio.load(html);
     var links = $('a[href]');
+    if (links.length > limit) {
+      console.log(chalk.gray('This page has more than %s links. Checking the first %s.'), limit, limit);
+      links = links.slice(0, limit);
+    }
     links.each(function () {
       var href = $(this).attr('href');
       checkAnchor(href);
