@@ -1,0 +1,12 @@
+#!/usr/bin/env node
+'use strict';
+
+var linkCheck = require('../');
+var targetUrl = process.argv[2];
+
+if (!targetUrl) {
+  console.log('Usage:\n    link-check <url>');
+  return;
+}
+
+linkCheck(targetUrl);

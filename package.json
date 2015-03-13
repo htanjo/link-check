@@ -23,11 +23,18 @@
   },
   "scripts": {},
   "main": "index.js",
-  "bin": {},
+  "bin": {
+    "link-check": "bin/link-check"
+  },
   "files": [
     "index.js",
+    "bin",
     "LICENSE"
   ],
-  "dependencies": {},
+  "dependencies": {
+    "chalk": "^1.0.0",
+    "cheerio": "^0.18.0",
+    "request": "^2.53.0"
+  },
   "devDependencies": {}
 }
