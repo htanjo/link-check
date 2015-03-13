@@ -1,0 +1,33 @@
+{
+  "name": "link-check",
+  "version": "0.0.0",
+  "description": "Link checker",
+  "author": {
+    "name": "Tanjo, Hiroyuki"
+  },
+  "license": {
+    "type": "MIT",
+    "url": "https://github.com/htanjo/link-check/blob/master/LICENSE"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/htanjo/link-check.git"
+  },
+  "homepage": "https://github.com/htanjo/link-check",
+  "bugs": {
+    "url": "https://github.com/htanjo/link-check/issues"
+  },
+  "keywords": [],
+  "engines": {
+    "node": ">=0.10.0"
+  },
+  "scripts": {},
+  "main": "index.js",
+  "bin": {},
+  "files": [
+    "index.js",
+    "LICENSE"
+  ],
+  "dependencies": {},
+  "devDependencies": {}
+}
