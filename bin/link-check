@@ -9,4 +9,4 @@ if (!targetUrl) {
   return;
 }
 
-linkCheck(targetUrl);
+linkCheck(targetUrl, {report: true});

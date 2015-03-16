@@ -1,26 +1,49 @@
 'use strict';
 
+var util = require('util');
+var EventEmitter = require('events').EventEmitter;
 var url = require('url');
+var _ = require('lodash');
 var request = require('request');
 var cheerio = require('cheerio');
-var chalk = require('chalk');
 
-var LinkCheck = function (targetUrl) {
-  var self = this;
+var reporter = require('./lib/reporter');
+
+var defaults = {
+  limit: 20,
+  report: false
+};
+
+var LinkCheck = function (targetUrl, options) {
+  EventEmitter.call(this);
+
   this.target = targetUrl;
-  this.limit = 20;
-  console.log(chalk.underline(this.target));
+  this.options = _.merge({}, defaults, options);
+
+  this.run();
+  if (this.options.report) {
+    reporter(this);
+  }
+};
+
+util.inherits(LinkCheck, EventEmitter);
+
+LinkCheck.prototype.run = function () {
+  var self = this;
+  setTimeout(function () {
+    self.emit('start');
+  }, 0);
   request(this.target, function (error, res, html) {
     if (error || !html) {
-      console.log(chalk.red('Invalid URL!'));
-      console.log(chalk.gray(error.message));
+      self.emit('error', {type: 'Invalid URL', message: error.message});
       return;
     }
     var $ = cheerio.load(html);
     var links = $('a[href]');
-    if (links.length > self.limit) {
-      console.log(chalk.gray('This page has more than %s links. Checking the first %s.'), self.limit, self.limit);
-      links = links.slice(0, self.limit);
+    var limit = self.options.limit;
+    if (links.length > limit) {
+      self.emit('warn', 'This page has more than ' + limit + ' links. Checking the first ' + limit + '.');
+      links = links.slice(0, limit);
     }
     links.each(function () {
       var href = $(this).attr('href');
@@ -33,22 +56,26 @@ LinkCheck.prototype.checkAnchor = function (href) {
   if (!href || href.indexOf('#') === 0) {
     return;
   }
+  var self = this;
   var requestUrl = url.resolve(this.target, href)
   request(requestUrl, function (error, res) {
+    var result = {
+      url: requestUrl,
+      valid: true,
+      message: ''
+    };
     if (error) {
-      console.log(chalk.red('NG') + ': ' + requestUrl);
-      console.log(chalk.gray(error.message));
-      return;
+      result.valid = false;
+      result.message = error.message;
     }
     if (res.statusCode !== 200) {
-      console.log(chalk.red('NG') + ': ' + requestUrl);
-      console.log(chalk.gray('Status code: ' + res.statusCode));
-      return;
+      result.valid = false;
+      result.message = 'Status code: ' + res.statusCode;
     }
-    console.log(chalk.green('OK') + ': ' + requestUrl);
+    self.emit('result', result);
   });
 };
 
-module.exports = function (targetUrl) {
-  return new LinkCheck(targetUrl);
+module.exports = function (targetUrl, options) {
+  return new LinkCheck(targetUrl, options);
 };
