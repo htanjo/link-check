@@ -5,13 +5,12 @@ var request = require('request');
 var cheerio = require('cheerio');
 var chalk = require('chalk');
 
-var target = '';
-var limit = 20;
-
-var linkCheck = function (targetUrl) {
-  target = targetUrl;
-  console.log(chalk.underline(target));
-  request(target, function (error, res, html) {
+var LinkCheck = function (targetUrl) {
+  var self = this;
+  this.target = targetUrl;
+  this.limit = 20;
+  console.log(chalk.underline(this.target));
+  request(this.target, function (error, res, html) {
     if (error || !html) {
       console.log(chalk.red('Invalid URL!'));
       console.log(chalk.gray(error.message));
@@ -19,22 +18,22 @@ var linkCheck = function (targetUrl) {
     }
     var $ = cheerio.load(html);
     var links = $('a[href]');
-    if (links.length > limit) {
-      console.log(chalk.gray('This page has more than %s links. Checking the first %s.'), limit, limit);
-      links = links.slice(0, limit);
+    if (links.length > self.limit) {
+      console.log(chalk.gray('This page has more than %s links. Checking the first %s.'), self.limit, self.limit);
+      links = links.slice(0, self.limit);
     }
     links.each(function () {
       var href = $(this).attr('href');
-      checkAnchor(href);
+      self.checkAnchor(href);
     });
   });
 };
 
-var checkAnchor = function (href) {
+LinkCheck.prototype.checkAnchor = function (href) {
   if (!href || href.indexOf('#') === 0) {
     return;
   }
-  var requestUrl = url.resolve(target, href)
+  var requestUrl = url.resolve(this.target, href)
   request(requestUrl, function (error, res) {
     if (error) {
       console.log(chalk.red('NG') + ': ' + requestUrl);
@@ -50,4 +49,6 @@ var checkAnchor = function (href) {
   });
 };
 
-module.exports = linkCheck;
+module.exports = function (targetUrl) {
+  return new LinkCheck(targetUrl);
+};
